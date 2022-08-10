@@ -6,3 +6,4 @@ drf-yasg
 python-decouple
 djangorestframework-simplejwt
 celery
+django-filter
