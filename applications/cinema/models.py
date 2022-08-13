@@ -31,6 +31,24 @@ class Image(models.Model):
     preview = models.ImageField(upload_to='cinema')
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='preview')
 
+class Like(models.Model):
+
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes', verbose_name='Владелей лайка')
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='likes', verbose_name='фильм')
+    like = models.BooleanField('лайк', default=False)
+
+    def __str__(self):
+        return f'{self.cinema}{self.like}'
+class Rating(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings', verbose_name='Владелец рейтинга')
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='ratings', verbose_name='фильм')
+    rating = models.SmallIntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.cinema}{self.rating}'
+
+
+
 
 
 
