@@ -39,6 +39,8 @@ class Like(models.Model):
 
     def __str__(self):
         return f'{self.cinema}{self.like}'
+
+
 class Rating(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings', verbose_name='Владелец рейтинга')
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='ratings', verbose_name='фильм')
@@ -46,6 +48,18 @@ class Rating(models.Model):
 
     def __str__(self):
         return f'{self.cinema}{self.rating}'
+
+class Comment(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Владелец коммента')
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='comments', verbose_name='фильм')
+    comment = models.TextField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Favorite(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorits', verbose_name='Владелец избранного')
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='favorits', verbose_name='фильм')
+    favorite = models.BooleanField('Избранное', default=False)
+
 
 
 

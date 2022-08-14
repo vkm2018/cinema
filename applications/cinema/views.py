@@ -6,13 +6,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from applications.cinema.models import Category, Cinema, Like, Rating
+from applications.cinema.models import Category, Cinema, Like, Rating, Comment, Favorite
 from applications.cinema.permissions import CustomIsAdmin
-from applications.cinema.serializers import CategorySerializer, CinemaSerializer, RatingSerializer
+from applications.cinema.serializers import CategorySerializer, CinemaSerializer, RatingSerializer, CommentSerializer
 
 
 class LargeResultsSetPagination(PageNumberPagination):
@@ -38,8 +38,7 @@ class CinemaView(ModelViewSet):
 
     @action(methods=['POST'], detail=True)
     def like(self, request,pk,*args,**kwargs):
-        print(request)
-        print(pk)
+
         try:
             like_object, _ = Like.objects.get_or_create(owner=request.user, cinema_id=pk)
 
@@ -51,18 +50,66 @@ class CinemaView(ModelViewSet):
             status = 'unliked'
             return Response({'status': status})
         except:
-            return Response('Нет такого продукта')
+            return Response('Нет такого фильма')
 
     @action(methods=['POST'], detail=True)
     def rating(self,request,pk,*args,**kwargs):
-
-
             rating_obj, _ = Rating.objects.get_or_create(owner = request.user, cinema_id=pk)
             serializer = RatingSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             rating_obj.rating = request.data['rating']
             rating_obj.save()
             return Response(request.data, status=201)
+
+    @action(methods=['POST'], detail=True)
+    def favorite(self,request,pk,*args,**kwargs):
+
+        try:
+            fav_obj, _ = Favorite.objects.get_or_create(owner=request.user, cinema_id=pk)
+            fav_obj.favorite = not fav_obj.favorite
+            fav_obj.save()
+            status = 'in_favorite'
+            if fav_obj.favorite:
+                return Response({'status': status})
+            status = 'remove_from_favorite'
+            return Response({'status': status})
+        except:
+            return Response('Нет такого фильма')
+
+
+
+
+
+    def get_permissions(self):
+        if self.action in ['list']:
+            permissions = []
+
+        elif self.action == 'like' or self.action == 'rating':
+            permissions = [IsAuthenticated]
+
+        else:
+            permissions = [IsAuthenticated]
+
+        return [p() for p in permissions]
+
+class CommentView(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+# class FavoriteView(ModelViewSet):
+#     queryset = Favorite.objects.all()
+#     serializer_class = FavoriteSerializer
+#     permission_classes = [IsAuthenticatedOrReadOnly]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(owner=self.request.user)
+
+
+
 
 
 
