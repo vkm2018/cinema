@@ -1,14 +1,26 @@
 from django.contrib import admin
 
 # Register your models here.
-from applications.cinema.models import Category, Cinema, Image
+from applications.cinema.models import Category, Cinema, Preview, Favorite
+
+
+class PreviewInAdmin(admin.TabularInline):
+    model = Preview
+    fields = ['image']
+    max_num = 1
+
+
+class CinemaAdmin(admin.ModelAdmin):
+    inlines = [PreviewInAdmin]
+
 
 admin.site.register(Category)
-admin.site.register(Cinema)
+admin.site.register(Cinema,CinemaAdmin)
 # admin.site.register(Preview)
 #
 #
-class PreviewInAdmin(admin.TabularInline):
-    model = Image
-    fields = ['image']
-    max_num = 1
+
+
+
+admin.site.register(Favorite)
+admin.site.register(Preview)

@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 # from applications.account.send_email import send_is_active, forgot_password_email
 from applications.account.tasks import celery_confirm_email,forgot_password_email
+from applications.cinema.models import Favorite
 
 User = get_user_model()
 
@@ -53,6 +54,11 @@ class LoginSerializer(serializers.ModelSerializer):
             attrs['user']=user
             return attrs
 
+# class FavoriteSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = Favorite
+#         fields = ['favorite']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

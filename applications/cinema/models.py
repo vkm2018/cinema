@@ -21,15 +21,15 @@ class Cinema(models.Model):
     descriptions = models.TextField(max_length=200)
     janr = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='janrs')
     year = models.IntegerField()
-    avatar = models.ImageField(upload_to='cinema', blank=True, null=True)
+
 
 
     def __str__(self):
         return self.title
 
-class Image(models.Model):
-    preview = models.ImageField(upload_to='cinema')
-    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='preview')
+class Preview(models.Model):
+    image = models.ImageField(upload_to='cinema')
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='images')
 
 class Like(models.Model):
 
@@ -58,9 +58,10 @@ class Comment(models.Model):
 class Favorite(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorits', verbose_name='Владелец избранного')
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='favorits', verbose_name='фильм')
-    favorite = models.BooleanField('Избранное', default=False)
+    favorite = models.BooleanField(default=False)
 
-
+    def __str__(self):
+        return f'{self.cinema} {self.favorite}'
 
 
 

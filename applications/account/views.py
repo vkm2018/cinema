@@ -79,3 +79,6 @@ class LogOutApiView(APIView):
             return  Response('Вы успешно вышли')
         except:
             return Response(status=403)
+
+# class FavoriteApiView(APIView):
+#     permission_classes = [IsAuthenticated]

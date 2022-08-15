@@ -7,12 +7,13 @@ from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 
 from applications.cinema.models import Category, Cinema, Like, Rating, Comment, Favorite
 from applications.cinema.permissions import CustomIsAdmin
-from applications.cinema.serializers import CategorySerializer, CinemaSerializer, RatingSerializer, CommentSerializer
+from applications.cinema.serializers import CategorySerializer, CinemaSerializer, RatingSerializer, CommentSerializer, \
+    FavoriteSerializer
 
 
 class LargeResultsSetPagination(PageNumberPagination):
@@ -62,7 +63,7 @@ class CinemaView(ModelViewSet):
             return Response(request.data, status=201)
 
     @action(methods=['POST'], detail=True)
-    def favorite(self,request,pk,*args,**kwargs):
+    def favorite(self, request, pk, *args, **kwargs):
 
         try:
             fav_obj, _ = Favorite.objects.get_or_create(owner=request.user, cinema_id=pk)
@@ -76,21 +77,21 @@ class CinemaView(ModelViewSet):
         except:
             return Response('Нет такого фильма')
 
-
-
-
-
     def get_permissions(self):
         if self.action in ['list']:
             permissions = []
 
         elif self.action == 'like' or self.action == 'rating':
             permissions = [IsAuthenticated]
-
+        elif self.action == 'favorite':
+            permissions = [IsAuthenticated]
         else:
             permissions = [IsAuthenticated]
 
         return [p() for p in permissions]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class CommentView(ModelViewSet):
     queryset = Comment.objects.all()
@@ -100,13 +101,19 @@ class CommentView(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-# class FavoriteView(ModelViewSet):
-#     queryset = Favorite.objects.all()
-#     serializer_class = FavoriteSerializer
-#     permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     def perform_create(self, serializer):
-#         serializer.save(owner=self.request.user)
+
+class FavoriteView(ModelViewSet):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    # def perform_create(self, serializer):
+    #     serializer.save(owner=self.request.user)
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     print(queryset)
+    #     queryset = queryset.filter(favorits__owner=self.request.user, favorits__favorite=True)
+    #     return queryset
 
 
 
