@@ -85,13 +85,15 @@ class CinemaView(ModelViewSet):
             permissions = [IsAuthenticated]
         elif self.action == 'favorite':
             permissions = [IsAuthenticated]
+        elif self.action=='create':
+            permissions=[CustomIsAdmin]
         else:
             permissions = [IsAuthenticated]
 
         return [p() for p in permissions]
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(owner=self.request.user)
 
 class CommentView(ModelViewSet):
     queryset = Comment.objects.all()

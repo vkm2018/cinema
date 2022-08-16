@@ -1,11 +1,18 @@
 from rest_framework import serializers
 
-from applications.cinema.models import Category, Cinema, Preview, Comment, Favorite
+from applications.cinema.models import Category, Cinema, Preview, Comment, Favorite, Video
 
 
 class PreviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Preview
+        fields = '__all__'
+
+
+class VideoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Video
         fields = '__all__'
 
 
@@ -43,6 +50,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class CinemaSerializer(serializers.ModelSerializer):
     images = PreviewSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
+    videos = VideoSerializer(many=True, read_only=True)
 
 
     class Meta:
@@ -54,10 +62,14 @@ class CinemaSerializer(serializers.ModelSerializer):
         images = requests.FILES
 
         cinema = Preview.objects.create(**validated_data)
+        videos = Video.objects.create(**validated_data)
+        for video in videos.getlist('videos'):
+            Video.objects.create(cinema=cinema, video=video)
         for image in images.getlist('images'):
             Preview.objects.create(cinema=cinema, image=image)
 
         return cinema
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['like'] = instance.likes.filter(like=True).count()

@@ -24,12 +24,19 @@ class Cinema(models.Model):
 
 
 
+
     def __str__(self):
         return self.title
 
 class Preview(models.Model):
     image = models.ImageField(upload_to='cinema')
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='images')
+
+class Video(models.Model):
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name='videos')
+    video = models.FileField(upload_to='video/')
+
+
 
 class Like(models.Model):
 
